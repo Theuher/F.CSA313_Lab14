@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="mn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тооны Машин</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .calculator-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .operations {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .operation-btn {
+            padding: 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .operation-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .operation-btn.selected {
+            background: #667eea;
+            color: white;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .submit-btn:active {
+            transform: scale(0.98);
+        }
+        
+        .result {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .result h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .result-value {
+            font-size: 2.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 8px;
+            border-left: 4px solid #c62828;
+        }
+        
+        .operation-symbol {
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h1>🧮 Тооны Машин</h1>
+        
+        <form th:action="@{/calculate}" method="post">
+            <div class="form-group">
+                <label for="num1">Эхний тоо:</label>
+                <input type="number" id="num1" name="num1" step="any" 
+                       th:value="${num1 != null ? num1 : ''}" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Үйлдэл:</label>
+                <div class="operations">
+                    <button type="button" class="operation-btn" onclick="selectOperation('add')">
+                        <span class="operation-symbol">+</span> Нэмэх
+                    </button>
+                    <button type="button" class="operation-btn" onclick="selectOperation('subtract')">
+                        <span class="operation-symbol">−</span> Хасах
+                    </button>
+                    <button type="button" class="operation-btn" onclick="selectOperation('multiply')">
+                        <span class="operation-symbol">×</span> Үржүүлэх
+                    </button>
+                    <button type="button" class="operation-btn" onclick="selectOperation('divide')">
+                        <span class="operation-symbol">÷</span> Хуваах
+                    </button>
+                </div>
+                <input type="hidden" id="operation" name="operation" 
+                       th:value="${operation != null ? operation : ''}" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="num2">Хоёр дахь тоо:</label>
+                <input type="number" id="num2" name="num2" step="any" 
+                       th:value="${num2 != null ? num2 : ''}" required>
+            </div>
+            
+            <button type="submit" class="submit-btn">Тооцоолох</button>
+        </form>
+        
+        <div th:if="${error != null}" class="error">
+            <strong>Алдаа:</strong> <span th:text="${error}"></span>
+        </div>
+        
+        <div th:if="${result != null && error == null}" class="result">
+            <h2>Үр дүн:</h2>
+            <div class="result-value" th:text="${result}"></div>
+        </div>
+    </div>
+    
+    <script>
+        function selectOperation(op) {
+            document.getElementById('operation').value = op;
+            
+            // Remove selected class from all buttons
+            document.querySelectorAll('.operation-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to clicked button
+            event.target.closest('.operation-btn').classList.add('selected');
+        }
+        
+        // Set selected operation on page load if exists
+        window.onload = function() {
+            const operation = document.getElementById('operation').value;
+            if (operation) {
+                document.querySelectorAll('.operation-btn').forEach(btn => {
+                    if (btn.textContent.includes(operation === 'add' ? '+' : 
+                                                  operation === 'subtract' ? '−' :
+                                                  operation === 'multiply' ? '×' : '÷')) {
+                        btn.classList.add('selected');
+                    }
+                });
+            }
+        };
+    </script>
+</body>
+</html>
+
