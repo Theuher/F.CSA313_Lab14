@@ -32,7 +32,7 @@
 		<maven.compiler.target>17</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>5.10.0</junit.version>
-		<checkstyle.version>10.12.5</checkstyle.version>
+		<maven.checkstyle.plugin.version>3.3.1</maven.checkstyle.plugin.version>
 		<jacoco.version>0.8.11</jacoco.version>
 	</properties>
 	<dependencies>
@@ -101,10 +101,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>${checkstyle.version}</version>
+				<version>${maven.checkstyle.plugin.version}</version>
 				<configuration>
 					<configLocation>checkstyle.xml</configLocation>
-					<encoding>UTF-8</encoding>
 					<consoleOutput>true</consoleOutput>
 					<failsOnError>true</failsOnError>
 					<linkXRef>false</linkXRef>
