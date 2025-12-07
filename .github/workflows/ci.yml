@@ -32,8 +32,11 @@ jobs:
       - name: Checkstyle Шалгах
         run: mvn checkstyle:check
       
-      - name: JUnit Тест ба JaCoCo Coverage Шалгах
-        run: mvn test jacoco:check
+      - name: JUnit Тест Ажиллуулах
+        run: mvn test
+      
+      - name: JaCoCo Coverage Шалгах
+        run: mvn verify
       
       - name: JaCoCo Тайлан Үүсгэх
         run: mvn jacoco:report
